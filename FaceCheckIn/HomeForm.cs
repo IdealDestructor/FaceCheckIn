@@ -380,7 +380,6 @@ namespace FaceCheckIn
 
                 if (!String.IsNullOrEmpty(msg))
                 {
-                    //SpeechHelper.Tts(msg, null);
                     MessageBox.Show(msg, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
