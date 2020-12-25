@@ -22,7 +22,7 @@ namespace FaceCheckIn
         private string[] allowsExts = { ".jpg", ".png", ".bmp", ".jpeg", ".gif" };
         // 图像文件数据
         private List<string> FaceList = new List<string>();
-        public List<FaceSearch> Userinfolist { get; set; }
+        public List<UserInfo> Userinfolist { get; set; }
         //private VideoCaptureDevice videoDevice;//摄像设备
         //private VideoCapabilities[] videoCapabilities;//摄像头分辨率
         //设置摄像头获取配置
@@ -54,7 +54,7 @@ namespace FaceCheckIn
 
             if (Userinfolist == null)
             {
-                Userinfolist = new List<FaceSearch>();
+                Userinfolist = new List<UserInfo>();
             }
 
             users_dataGridView.DataSource = Userinfolist;
@@ -130,7 +130,7 @@ namespace FaceCheckIn
             //检测图像质量
             var imageBytes = File.ReadAllBytes(filePath);
             var image = Convert.ToBase64String(imageBytes);
-            var result = FaceDectectHelper.DetectDemo(image);
+            var result = BaiduUtils.DetectDemo(image);
 
             if (String.IsNullOrEmpty(result))
             {
@@ -197,7 +197,7 @@ namespace FaceCheckIn
 
                 if (jresult.Equals("SUCCESS"))
                 {
-                    Userinfolist.Add(new FaceSearch() { group_id = groupId, user_id = userId, user_info = userName });
+                    Userinfolist.Add(new UserInfo() { group_id = groupId, user_id = userId, user_info = userName });
                     MessageBox.Show("注册成功！");
                 }
                 else {
@@ -210,7 +210,7 @@ namespace FaceCheckIn
         {
             bool flag = false;
             var image = Convert.ToBase64String(imageBytes);
-            FaceSearch result = FaceDectectHelper.SearchDemo(image);
+            String result = BaiduUtils.searchOneUserByImage(image);
             // 可选参数
             var option = new Dictionary<string, object>()
                 {
@@ -219,14 +219,14 @@ namespace FaceCheckIn
                     {"per", 4}  // 发音人，4：情感度丫丫童声
                 };
 
-            if (result != null && result.score > 50)
+            if (result != null && result.Contains("#"))
             {
                 flag = true;
                 var time = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-                CheckResult_rtb.AppendText(String.Format("{0}\t 签到时间：{1}\n", result.user_info, time));
+                CheckResult_rtb.AppendText(String.Format("{0}\t 签到时间：{1}\n", result.Split('#')[1], time));
                 //签到信息入库
-                MysqlUtil.addInfor(result.user_info, time);
-                SpeechHelper.speech(String.Format("签到成功，欢迎{0}", result.user_info), option);
+                MysqlUtil.addInfor(result.Split('#')[1], time);
+                SpeechHelper.speech(String.Format("签到成功，欢迎{0}", result.Split('#')[1]), option);
             }
             else
             {
@@ -416,11 +416,11 @@ namespace FaceCheckIn
         private void delete_btn_Click(object sender, EventArgs e)
         {
             var flag = false;
-            List<FaceSearch> list = new List<FaceSearch>();
-            list.AddRange(Userinfolist.Select(x => new FaceSearch(x)));
+            List<UserInfo> list = new List<UserInfo>();
+            list.AddRange(Userinfolist.Select(x => new UserInfo(x)));
             foreach (DataGridViewRow row in users_dataGridView.SelectedRows)
             {
-                var deleteUser = row.DataBoundItem as FaceSearch;
+                var deleteUser = row.DataBoundItem as UserInfo;
 
                 //var jresult = FaceDectectHelper.DeleteUser(deleteUser.group_id, deleteUser.user_id);
                 var jresult = BaiduUtils.delUser(deleteUser.group_id, deleteUser.user_id);
@@ -456,7 +456,7 @@ namespace FaceCheckIn
             }
             cboVideo.SelectedIndex = 0;//默认选择第一个
             // Get user info
-            Userinfolist = FaceDectectHelper.GetAllUserList();
+            Userinfolist = BaiduUtils.queryUserListByGroupId("1");
             //refresh token per 5s
             //var _timer = new System.Timers.Timer(5 * 1000);
             //_timer.Elapsed += delegate
@@ -469,9 +469,14 @@ namespace FaceCheckIn
             {
                 while (true)
                 {
-                    var result = FaceDectectHelper.GetAllUserList();
-                    if (result.Count > 0)
-                        Userinfolist = result;
+                    try
+                    {
+                        Thread.Sleep(1000 * 10);
+                        var result = BaiduUtils.queryUserListByGroupId("1");
+                        if (result.Count > 0)
+                            Userinfolist = result;
+                    }
+                    catch (Exception e1) { }
                 }
             }));
 
