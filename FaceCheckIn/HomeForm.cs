@@ -8,7 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using MySql.Data.MySqlClient;
 
 namespace FaceCheckIn
@@ -23,8 +24,7 @@ namespace FaceCheckIn
         // 图像文件数据
         private List<string> FaceList = new List<string>();
         public List<UserInfo> Userinfolist { get; set; }
-        //private VideoCaptureDevice videoDevice;//摄像设备
-        //private VideoCapabilities[] videoCapabilities;//摄像头分辨率
+
         //设置摄像头获取配置
         public VideoSourcePlayer CurrentVideoSourcePlayer { get; set; }
         private FilterInfoCollection videoDevices;
@@ -130,7 +130,7 @@ namespace FaceCheckIn
             //检测图像质量
             var imageBytes = File.ReadAllBytes(filePath);
             var image = Convert.ToBase64String(imageBytes);
-            var result = BaiduUtils.DetectDemo(image);
+            var result = BaiduUtils.faceDetect(image);
 
             if (String.IsNullOrEmpty(result))
             {
@@ -149,7 +149,6 @@ namespace FaceCheckIn
             for (int i = 0; i < length; i++)
             {
                 var item = FaceList[i];
-                //添加到FaceList
                 var imageName = Path.GetFileNameWithoutExtension(item);
                 imageLists.Images.Add(Image.FromFile(item));
                 FacelistView.Items.Add(imageName);
@@ -192,7 +191,6 @@ namespace FaceCheckIn
                 var imageBytes = File.ReadAllBytes(FaceList[i]);
 
                 var image = Convert.ToBase64String(imageBytes);
-                //var jresult = FaceDectectHelper.UserAddDemo(image, groupId, userId, options);
                 var jresult = BaiduUtils.addUser(image, groupId, userId, userName);
 
                 if (jresult.Equals("SUCCESS"))
@@ -210,7 +208,7 @@ namespace FaceCheckIn
         {
             bool flag = false;
             var image = Convert.ToBase64String(imageBytes);
-            String result = BaiduUtils.searchOneUserByImage(image);
+            FaceSearchResult result = BaiduUtils.searchOneUserByImage(image);
             // 可选参数
             var option = new Dictionary<string, object>()
                 {
@@ -219,18 +217,18 @@ namespace FaceCheckIn
                     {"per", 4}  // 发音人，4：情感度丫丫童声
                 };
 
-            if (result != null && result.Contains("#"))
+            if (result != null && result.flag)
             {
                 flag = true;
                 var time = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-                CheckResult_rtb.AppendText(String.Format("{0}\t 签到时间：{1}\n", result.Split('#')[1], time));
+                CheckResult_rtb.AppendText(String.Format("{0}\t 签到时间：{1}\n", result.msg, time));
                 //签到信息入库
-                MysqlUtil.addInfor(result.Split('#')[1], time);
-                SpeechHelper.speech(String.Format("签到成功，欢迎{0}", result.Split('#')[1]), option);
+                MysqlUtil.addInfor(result.msg, time);
+                Speak.speech(String.Format("签到成功，欢迎{0}", result.msg), option);
             }
             else
             {
-                SpeechHelper.speech(String.Format("没有该用户的信息，请先注册"), option);
+                Speak.speech(String.Format("没有该用户的信息，请先注册"), option);
             }
 
             return flag;
@@ -292,7 +290,6 @@ namespace FaceCheckIn
                     }
                 }
             }
-            //更新iamgeList
             UpdateImageListUI();
         }
 
@@ -310,7 +307,6 @@ namespace FaceCheckIn
             switch (UserFace_Page.SelectedIndex)
             {
                 case 2:
-                    //CurrentVideoSourcePlayer = videoSourcePlayer_UserSignIn;
                     break;
                 case 0:
                     CurrentVideoSourcePlayer = videoSourcePlayer_UserCheckIn;
@@ -331,12 +327,6 @@ namespace FaceCheckIn
 
             if (CurrentVideoSourcePlayer.Name == "videoSourcePlayer_UserCheckIn" && CurrentVideoSourcePlayer.IsRunning)
             {
-                //Thread objThread = new Thread(new ThreadStart(delegate
-                //{
-                //    ThreadMethodUserCheckIn();
-                //}));
-
-                //objThread.Start();
                 Bitmap bitmap = CurrentVideoSourcePlayer.GetCurrentVideoFrame();
 
                 using (var m = new MemoryStream())
@@ -355,18 +345,6 @@ namespace FaceCheckIn
         }
         private void UserFace_Page_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //foreach (TabPage tab in UserFace_Page.TabPages)
-            //{
-            //    if (UserFace_Page.SelectedIndex != tab.TabIndex)
-            //    {
-            //        tab.Hide();
-            //    }
-            //    else
-            //    {
-            //        tab.Show();
-            //    }
-            //}
-
             switch (UserFace_Page.SelectedIndex)
             {
                 case 2:
@@ -422,7 +400,6 @@ namespace FaceCheckIn
             {
                 var deleteUser = row.DataBoundItem as UserInfo;
 
-                //var jresult = FaceDectectHelper.DeleteUser(deleteUser.group_id, deleteUser.user_id);
                 var jresult = BaiduUtils.delUser(deleteUser.group_id, deleteUser.user_id);
                 if (jresult.Equals("SUCCESS"))
                 {
@@ -455,34 +432,31 @@ namespace FaceCheckIn
                 cboVideo.Items.Add("没有找到摄像头");
             }
             cboVideo.SelectedIndex = 0;//默认选择第一个
-            // Get user info
-            Userinfolist = BaiduUtils.queryUserListByGroupId("1");
-            //refresh token per 5s
-            //var _timer = new System.Timers.Timer(5 * 1000);
-            //_timer.Elapsed += delegate
-            //{
-            //    Userinfolist = FaceDectectHelper.GetAllUserList();
-            //};
 
-            //_timer.Start();
+            var groupList = BaiduUtils.queryGroupList();
+            var groupIdList = JsonConvert.DeserializeObject<List<string>>(groupList.ToString());
+
+            List<UserInfo> userinfolist1 = new List<UserInfo>();
+            foreach (var groupId in groupIdList)
+            {
+                List<UserInfo> list1 = BaiduUtils.queryUserListByGroupId(groupId);
+                userinfolist1.Concat(list1);
+
+            }
+            
+   
             Thread objThread = new Thread(new ThreadStart(delegate
             {
                 while (true)
                 {
-                    try
-                    {
-                        Thread.Sleep(1000 * 10);
-                        var result = BaiduUtils.queryUserListByGroupId("1");
-                        if (result.Count > 0)
-                            Userinfolist = result;
-                    }
-                    catch (Exception e1) { }
+                    var result = userinfolist1;
+                    if (result.Count > 0)
+                        Userinfolist = result;
                 }
             }));
 
             objThread.Start();
-            //实例化委托 没作用
-            //UserCheck = new UserCheckInDelegate(UserCheckInMethod);
+
         }
 
         private void DisConnect()

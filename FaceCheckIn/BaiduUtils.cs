@@ -7,9 +7,6 @@ using Baidu.Aip;
 using Baidu.Aip.Face;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Windows.Forms;
-using System.Net;
-using System.Text.RegularExpressions;
 
 namespace FaceCheckIn
 {
@@ -208,7 +205,7 @@ namespace FaceCheckIn
             if (userResult["error_msg"].ToString() == "SUCCESS")
             {
                 UserInfo userInfo = new UserInfo();
-                userInfo.user_id = userId;
+                userInfo.user_id = userResult["result"]["user_list"][0]["user_info"].ToString();
                 userInfo.user_info = userResult["result"]["user_list"][0]["user_info"].ToString();
                 userInfo.group_id = groupId;
 
@@ -224,9 +221,9 @@ namespace FaceCheckIn
         }
 
         //4、人脸搜索---返回人员的id+人员的姓名
-        public static String searchOneUserByImage(String image)
+        public static FaceSearchResult searchOneUserByImage(String image)
         {
-
+            FaceSearchResult faceSearchResult = new FaceSearchResult();
             var options = new Dictionary<string, object>{
                     {"quality_control", "NORMAL"},
                     {"liveness_control", "LOW"},
@@ -246,78 +243,19 @@ namespace FaceCheckIn
 
                 Console.WriteLine("人脸搜索结果:");
                 Console.WriteLine(searchResult);
-
-                return userId.ToString() +"#"+ userName;
+                faceSearchResult.flag = true;
+                faceSearchResult.msg = userName;
+                
 
             }
             else
             {
-                return searchResult["error_msg"].ToString();
+                faceSearchResult.flag = false;
+                faceSearchResult.msg = searchResult["error_msg"].ToString();
             }
 
-        }
+            return faceSearchResult;
 
-        /// <summary>
-        /// 人脸检测 
-        /// </summary>
-        /// <param name="image"></param>
-        /// <returns></returns>
-        public static String DetectDemo(string image)
-        {
-            String Result = String.Empty;
-            try
-            {
-                var imageType = "BASE64";
-                //var result = _faceClient.Detect(image, imageType);
-                // 如果有可选参数
-                var options = new Dictionary<string, object>
-                {
-                    {"face_field",  "beauty,age,expression,face_shape,gender,race,quality"},
-                    {"max_face_num", 1},
-                };
-
-                var jresult = aipClient.Detect(image, imageType, options);
-
-                if (jresult["error_code"].ToString() != "0" && !String.IsNullOrEmpty(jresult["error_msg"].ToString()))
-                    return jresult["error_msg"].ToString();
-
-                FaceDectecResult faceResult = JsonConvert.DeserializeObject<FaceDectecResult>(jresult["result"].ToString());
-                var quality = faceResult.face_list[0].quality;
-
-                if (quality != null)
-                {
-                    var s = CommonUtility.GetProperties<Occlusion>(quality.occlusion);
-                    string pattern = @"[^\d.\d]"; // 正则表达式剔除非数字字符（不包含小数点.）
-                    var values = Regex.Split(s, pattern).Where(m => !String.IsNullOrEmpty(m)).Select(m => double.Parse(m)).ToList();
-                    if (values.Count(x => x > 0.7) > 0)
-                    {
-                        return "图像中遮挡范围太大，请重新上传！";
-                    }
-
-                    if (0.7 < quality.blur)
-                    {
-                        return "图像太模糊，请重新上传！";
-                    }
-                    if (40 > quality.illumination)
-                    {
-                        return "图像中光线太暗，请重新上传！";
-                    }
-                    if (0.7 > quality.completeness)
-                    {
-                        return "人脸不完整，请重新上传！";
-                    }
-                }
-            }
-            catch (AipException exp)
-            {
-                MessageBox.Show(exp.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (WebException exp)
-            {
-                MessageBox.Show(exp.Message, "网络错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            return Result;
         }
 
         //人脸识别-返回是人脸的概率
@@ -339,9 +277,16 @@ namespace FaceCheckIn
 
             FaceDectecResult faceResult = JsonConvert.DeserializeObject<FaceDectecResult>(result["result"].ToString());
             Console.WriteLine("人脸识别结果:");
-            Console.WriteLine(faceResult);
+            Console.WriteLine(result);
 
-            return faceResult.face_list[0].face_shape.probability;
+            if (faceResult.face_list[0].face_probability > 0.8)
+            {
+                return "SUCCESS";
+            }
+            else
+            {
+                return "非人脸，请重新上传";
+            }
 
         }
     }
@@ -349,12 +294,13 @@ namespace FaceCheckIn
     public class UserInfo
     {
         public UserInfo() { }
-        public UserInfo(UserInfo face)
+        public UserInfo(UserInfo info)
         {
-            group_id = face.group_id;
-            user_id = face.user_id;
-            user_info = face.user_info;
+            group_id = info.group_id;
+            user_id = info.user_id;
+            user_info = info.user_info;
         }
+        
         public string group_id { get; set; }
         public string user_id { get; set; }
         public string user_info { get; set; }
@@ -369,8 +315,7 @@ namespace FaceCheckIn
         public Expression expression { get; set; }
         public Race race { get; set; }
         public String beauty { get; set; }
-        public ImageQuality quality { get; set; }
-
+        public double face_probability { get; set; }
     }
 
     public class FaceShape
@@ -409,57 +354,10 @@ namespace FaceCheckIn
         public List<FaceInfo> face_list { get; set; }
     }
 
-    public class ImageQuality
-    {
-        /// <summary>
-        /// 遮挡范围
-        /// </summary>
-        public Occlusion occlusion { get; set; }
-        /// <summary>
-        /// 人脸模糊程度，范围[0~1]，0表示清晰，1表示模糊
-        /// </summary>
-        public double blur { get; set; }
-        /// <summary>
-        /// 取值范围在[0~255], 表示脸部区域的光照程度 越大表示光照越好
-        /// </summary>
-        public double illumination { get; set; }
-        /// <summary>
-        /// 人脸完整度，0或1, 0为人脸溢出图像边界，1为人脸都在图像边界内
-        /// </summary>
-        public Int64 completeness { get; set; }
+
+    public class FaceSearchResult{
+        public Boolean flag { get; set; }
+        public String msg { get; set; }
     }
-
-    public class Occlusion
-    {
-        /// <summary>
-        /// 左眼遮挡比例
-        /// </summary>
-        public double left_eye { get; set; }
-        /// <summary>
-        /// 右眼遮挡比例
-        /// </summary>
-        public double right_eye { get; set; }
-        /// <summary>
-        /// 鼻子遮挡比例
-        /// </summary>
-        public double nose { get; set; }
-        /// <summary>
-        /// 嘴巴遮挡比例
-        /// </summary>
-        public double mouth { get; set; }
-        /// <summary>
-        /// 左脸颊遮挡比例
-        /// </summary>
-        public double left_cheek { get; set; }
-        /// <summary>
-        /// 右脸颊遮挡比例
-        /// </summary>
-        public double right_cheek { get; set; }
-        /// <summary>
-        /// 下巴遮挡比例
-        /// </summary>
-        public double chin { get; set; }
-
-    }
-
+    
 }
