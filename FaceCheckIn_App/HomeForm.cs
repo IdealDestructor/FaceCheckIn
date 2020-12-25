@@ -15,16 +15,23 @@ namespace FaceCheckIn_App
 {
     public partial class HomeForm : Form
     {
+        private FilterInfoCollection videoDevices1;//所有摄像设备
+        private VideoCaptureDevice videoDevice1;//摄像设备
+        private VideoCapabilities[] videoCapabilities1;//摄像头分辨率
+
         private string[] allowsExts = { ".jpg", ".png", ".bmp", ".jpeg", ".gif" };
         // 图像文件数据
         private List<string> FaceList = new List<string>();
         public List<FaceSearch> Userinfolist { get; set; }
-
+        //private VideoCaptureDevice videoDevice;//摄像设备
+        //private VideoCapabilities[] videoCapabilities;//摄像头分辨率
         //设置摄像头获取配置
         public VideoSourcePlayer CurrentVideoSourcePlayer { get; set; }
-        FilterInfoCollection videoDevices;
-        VideoCaptureDevice videoSource;
+        private FilterInfoCollection videoDevices;
+        private VideoCaptureDevice videoSource;
         public int selectedDeviceIndex = 0;
+
+        
 
         public HomeForm()
         {
@@ -98,6 +105,10 @@ namespace FaceCheckIn_App
             ofdOpenImageFile.FileNames.ToList().ForEach(item =>
             {
                 var msg = AddFace(item);
+                if (!String.IsNullOrEmpty(msg))
+                {
+                    MessageBox.Show(msg, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             });
 
             UpdateImageListUI();
@@ -172,14 +183,19 @@ namespace FaceCheckIn_App
                 var imageBytes = File.ReadAllBytes(FaceList[i]);
 
                 var image = Convert.ToBase64String(imageBytes);
-                var jresult = FaceDectectHelper.UserAddDemo(image, groupId, userId, options);
+                //var jresult = FaceDectectHelper.UserAddDemo(image, groupId, userId, options);
+                var jresult = BaiduUtils.addUser(image, groupId, userId, userName);
 
-                if (jresult != null && !String.IsNullOrEmpty(jresult.face_token))
+                if (jresult.Equals("SUCCESS"))
                 {
                     Userinfolist.Add(new FaceSearch() { group_id = groupId, user_id = userId, user_info = userName });
+                    MessageBox.Show("注册成功！");
+                }
+                else {
+                    MessageBox.Show("注册失败："+jresult.ToString());
                 }
             }
-            MessageBox.Show("注册成功！");
+            
         }
         private bool UserCheckIn(byte[] imageBytes)
         {
@@ -261,7 +277,10 @@ namespace FaceCheckIn_App
 
                 if (allowsExts.Contains(d.Extension))
                 {
-                    AddFace(filePath);
+                    var msg = AddFace(filePath);
+                    if (!String.IsNullOrEmpty(msg)) {
+                        MessageBox.Show(msg, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
             //更新iamgeList
@@ -282,7 +301,7 @@ namespace FaceCheckIn_App
             switch (UserFace_Page.SelectedIndex)
             {
                 case 0:
-                    CurrentVideoSourcePlayer = videoSourcePlayer_UserSignIn;
+                    //CurrentVideoSourcePlayer = videoSourcePlayer_UserSignIn;
                     break;
                 case 2:
                     CurrentVideoSourcePlayer = videoSourcePlayer_UserCheckIn;
@@ -322,7 +341,6 @@ namespace FaceCheckIn_App
                         img.Save(fileName);
                     }
                 }
-
                 bitmap.Dispose();
             }
         }
@@ -395,11 +413,15 @@ namespace FaceCheckIn_App
             {
                 var deleteUser = row.DataBoundItem as FaceSearch;
 
-                var jresult = FaceDectectHelper.DeleteUser(deleteUser.group_id, deleteUser.user_id);
-                if (jresult["error_code"].ToString() == "0")
+                //var jresult = FaceDectectHelper.DeleteUser(deleteUser.group_id, deleteUser.user_id);
+                var jresult = BaiduUtils.delUser(deleteUser.group_id, deleteUser.user_id);
+                if (jresult.Equals("SUCCESS"))
                 {
                     flag = true;
                     list.Remove(deleteUser);
+                }
+                else {
+                    MessageBox.Show("删除失败：" + jresult.ToString());
                 }
             }
 
@@ -411,6 +433,19 @@ namespace FaceCheckIn_App
 
         private void HomeForm_Load(object sender, EventArgs e)
         {
+            videoDevices1 = new FilterInfoCollection(FilterCategory.VideoInputDevice);//得到机器所有接入的摄像设备
+            if (videoDevices1.Count != 0)
+            {
+                foreach (FilterInfo device in videoDevices1)
+                {
+                    cboVideo.Items.Add(device.Name);//把摄像设备添加到摄像列表中
+                }
+            }
+            else
+            {
+                cboVideo.Items.Add("没有找到摄像头");
+            }
+            cboVideo.SelectedIndex = 0;//默认选择第一个
             // Get user info
             Userinfolist = FaceDectectHelper.GetAllUserList();
             //refresh token per 5s
@@ -442,11 +477,109 @@ namespace FaceCheckIn_App
             {
                 CurrentVideoSourcePlayer.SignalToStop();
                 CurrentVideoSourcePlayer.WaitForStop();
+                videoDevice1.VideoResolution = videoCapabilities1[cboResolution.SelectedIndex];//摄像头分辨率
+                videoSourcePlayer_UserCheckIn.VideoSource = videoDevice1;//把摄像头赋给控件
+                videoSourcePlayer_UserCheckIn.Start();//开启摄像头
+                vispShoot.VideoSource = null;
+                EnableControlStatus(false);
             }
         }
         private void HomeForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             DisConnect();
         }
+
+        private void groupId_tb_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void videoSourcePlayer_UserCheckIn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cboVideo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (videoDevices.Count != 0)
+            {
+                //获取摄像头
+                videoDevice1 = new VideoCaptureDevice(videoDevices[cboVideo.SelectedIndex].MonikerString);
+                GetDeviceResolution(videoDevice1);//获得摄像头的分辨率
+            }
+        }
+
+        private void GetDeviceResolution(VideoCaptureDevice videoCaptureDevice)
+        {
+            cboResolution.Items.Clear();//清空列表
+            videoCapabilities1 = videoCaptureDevice.VideoCapabilities;//设备的摄像头分辨率数组
+            foreach (VideoCapabilities capabilty in videoCapabilities1)
+            {
+                //把这个设备的所有分辨率添加到列表
+                cboResolution.Items.Add("{capabilty.FrameSize.Width} x {capabilty.FrameSize.Height}");
+            }
+            cboResolution.SelectedIndex = 0;//默认选择第一个
+        }
+
+        private void cboResolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            if (videoDevice1 != null)//如果摄像头不为空
+            {
+                Console.Write("摄像头检测成功");
+                if ((videoCapabilities1 != null) && (videoCapabilities1.Length != 0))
+                {
+                    CurrentVideoSourcePlayer.SignalToStop();
+                    CurrentVideoSourcePlayer.WaitForStop();
+                    videoDevice1.VideoResolution = videoCapabilities1[cboResolution.SelectedIndex];//摄像头分辨率
+                    vispShoot.VideoSource = videoDevice1;//把摄像头赋给控件
+                    vispShoot.Start();//开启摄像头
+                    EnableControlStatus(false);
+                }
+            }
+        }
+
+        private void btnCut_Click(object sender, EventArgs e)
+        {
+        
+            DisConnect();//断开连接
+            EnableControlStatus(true);
+        }
+
+        //控件的显示切换
+        private void EnableControlStatus(bool status)
+        {
+            cboVideo.Enabled = status;
+            cboResolution.Enabled = status;
+            btnConnect.Enabled = status;
+            btnPic.Enabled = !status;
+            btnCut.Enabled = !status;
+        }
+
+        private void btnPic_Click(object sender, EventArgs e)
+        {
+            //for (int i = 1; ;i++)
+            {
+                Bitmap img = vispShoot.GetCurrentVideoFrame();//拍照
+                picbPreview.Image = img;
+                //这里可以根据情况，把照片存到某个路径下
+                //btnPic.
+                var tmp_path = "20201224.png";
+                img.Save(tmp_path);
+                var msg = AddFace(tmp_path);
+                if (!String.IsNullOrEmpty(msg))
+                {
+                    MessageBox.Show(msg, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                UpdateImageListUI();
+            }
+        }
+
+        
+
     }
 }

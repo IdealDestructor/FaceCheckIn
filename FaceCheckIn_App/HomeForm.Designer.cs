@@ -33,8 +33,22 @@ namespace FaceCheckIn_App
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HomeForm));
             this.UserFace_Page = new System.Windows.Forms.TabControl();
+            this.Tab_CheckIn = new System.Windows.Forms.TabPage();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.CheckResult_rtb = new System.Windows.Forms.RichTextBox();
+            this.ConfirmCheckIn_btn = new System.Windows.Forms.Button();
+            this.videoSourcePlayer_UserCheckIn = new AForge.Controls.VideoSourcePlayer();
             this.Tab_User = new System.Windows.Forms.TabPage();
-            this.videoSourcePlayer_UserSignIn = new AForge.Controls.VideoSourcePlayer();
+            this.picbPreview = new AForge.Controls.PictureBox();
+            this.vispShoot = new AForge.Controls.VideoSourcePlayer();
+            this.btnPic = new System.Windows.Forms.Button();
+            this.btnCut = new System.Windows.Forms.Button();
+            this.btnConnect = new System.Windows.Forms.Button();
+            this.label8 = new System.Windows.Forms.Label();
+            this.cboResolution = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.cboVideo = new System.Windows.Forms.ComboBox();
             this.uploadFiles_btn = new System.Windows.Forms.Button();
             this.folderBrowser_btn = new System.Windows.Forms.Button();
             this.ImageFolderAddress_tb = new System.Windows.Forms.TextBox();
@@ -47,8 +61,6 @@ namespace FaceCheckIn_App
             this.label1 = new System.Windows.Forms.Label();
             this.Cancel_btn = new System.Windows.Forms.Button();
             this.signIn_btn = new System.Windows.Forms.Button();
-            this.ScratchPicture_btn = new System.Windows.Forms.Button();
-            this.activeCamara_btn = new System.Windows.Forms.Button();
             this.loadImage_btn = new System.Windows.Forms.Button();
             this.userId_tb = new System.Windows.Forms.TextBox();
             this.UserIdLabel = new System.Windows.Forms.Label();
@@ -60,44 +72,123 @@ namespace FaceCheckIn_App
             this.Tab_SignIn = new System.Windows.Forms.TabPage();
             this.delete_btn = new System.Windows.Forms.Button();
             this.users_dataGridView = new System.Windows.Forms.DataGridView();
-            this.groupidDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.useridDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.userinfoDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.faceSearchBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.Tab_CheckIn = new System.Windows.Forms.TabPage();
-            this.label5 = new System.Windows.Forms.Label();
-            this.CheckResult_rtb = new System.Windows.Forms.RichTextBox();
-            this.ConfirmCheckIn_btn = new System.Windows.Forms.Button();
-            this.videoSourcePlayer_UserCheckIn = new AForge.Controls.VideoSourcePlayer();
             this.ofdOpenImageFile = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.faceSearchBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.groupidDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.useridDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.userinfoDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.UserFace_Page.SuspendLayout();
+            this.Tab_CheckIn.SuspendLayout();
             this.Tab_User.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picbPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pboxImage)).BeginInit();
             this.Tab_SignIn.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.users_dataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.faceSearchBindingSource)).BeginInit();
-            this.Tab_CheckIn.SuspendLayout();
             this.SuspendLayout();
             // 
             // UserFace_Page
             // 
+            this.UserFace_Page.Controls.Add(this.Tab_CheckIn);
             this.UserFace_Page.Controls.Add(this.Tab_User);
             this.UserFace_Page.Controls.Add(this.Tab_SignIn);
-            this.UserFace_Page.Controls.Add(this.Tab_CheckIn);
-            this.UserFace_Page.Location = new System.Drawing.Point(16, 9);
+            this.UserFace_Page.Location = new System.Drawing.Point(16, 8);
             this.UserFace_Page.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.UserFace_Page.Name = "UserFace_Page";
             this.UserFace_Page.SelectedIndex = 0;
-            this.UserFace_Page.Size = new System.Drawing.Size(1484, 1030);
+            this.UserFace_Page.Size = new System.Drawing.Size(1252, 1030);
             this.UserFace_Page.TabIndex = 0;
             this.UserFace_Page.SelectedIndexChanged += new System.EventHandler(this.UserFace_Page_SelectedIndexChanged);
+            // 
+            // Tab_CheckIn
+            // 
+            this.Tab_CheckIn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Tab_CheckIn.BackgroundImage")));
+            this.Tab_CheckIn.Controls.Add(this.label6);
+            this.Tab_CheckIn.Controls.Add(this.label5);
+            this.Tab_CheckIn.Controls.Add(this.CheckResult_rtb);
+            this.Tab_CheckIn.Controls.Add(this.ConfirmCheckIn_btn);
+            this.Tab_CheckIn.Controls.Add(this.videoSourcePlayer_UserCheckIn);
+            this.Tab_CheckIn.Location = new System.Drawing.Point(8, 39);
+            this.Tab_CheckIn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Tab_CheckIn.Name = "Tab_CheckIn";
+            this.Tab_CheckIn.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Tab_CheckIn.Size = new System.Drawing.Size(1236, 983);
+            this.Tab_CheckIn.TabIndex = 2;
+            this.Tab_CheckIn.Text = "用户签到";
+            this.Tab_CheckIn.UseVisualStyleBackColor = true;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label6.Location = new System.Drawing.Point(258, 102);
+            this.label6.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(207, 33);
+            this.label6.TabIndex = 4;
+            this.label6.Text = "请正对摄像头";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.1F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(838, 86);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(172, 44);
+            this.label5.TabIndex = 3;
+            this.label5.Text = "签到信息";
+            // 
+            // CheckResult_rtb
+            // 
+            this.CheckResult_rtb.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.CheckResult_rtb.Location = new System.Drawing.Point(730, 150);
+            this.CheckResult_rtb.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.CheckResult_rtb.Name = "CheckResult_rtb";
+            this.CheckResult_rtb.ReadOnly = true;
+            this.CheckResult_rtb.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            this.CheckResult_rtb.Size = new System.Drawing.Size(440, 550);
+            this.CheckResult_rtb.TabIndex = 2;
+            this.CheckResult_rtb.Text = "";
+            // 
+            // ConfirmCheckIn_btn
+            // 
+            this.ConfirmCheckIn_btn.Location = new System.Drawing.Point(264, 752);
+            this.ConfirmCheckIn_btn.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.ConfirmCheckIn_btn.Name = "ConfirmCheckIn_btn";
+            this.ConfirmCheckIn_btn.Size = new System.Drawing.Size(150, 68);
+            this.ConfirmCheckIn_btn.TabIndex = 1;
+            this.ConfirmCheckIn_btn.Text = "确认签到";
+            this.ConfirmCheckIn_btn.UseVisualStyleBackColor = true;
+            this.ConfirmCheckIn_btn.Click += new System.EventHandler(this.ConfirmCheckIn_btn_Click);
+            // 
+            // videoSourcePlayer_UserCheckIn
+            // 
+            this.videoSourcePlayer_UserCheckIn.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.videoSourcePlayer_UserCheckIn.Location = new System.Drawing.Point(64, 150);
+            this.videoSourcePlayer_UserCheckIn.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.videoSourcePlayer_UserCheckIn.Name = "videoSourcePlayer_UserCheckIn";
+            this.videoSourcePlayer_UserCheckIn.Size = new System.Drawing.Size(594, 554);
+            this.videoSourcePlayer_UserCheckIn.TabIndex = 0;
+            this.videoSourcePlayer_UserCheckIn.Text = "videoSourcePlayer_UserCheckIn";
+            this.videoSourcePlayer_UserCheckIn.VideoSource = null;
+            this.videoSourcePlayer_UserCheckIn.Click += new System.EventHandler(this.videoSourcePlayer_UserCheckIn_Click);
             // 
             // Tab_User
             // 
             this.Tab_User.AllowDrop = true;
-            this.Tab_User.Controls.Add(this.videoSourcePlayer_UserSignIn);
+            this.Tab_User.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Tab_User.BackgroundImage")));
+            this.Tab_User.Controls.Add(this.picbPreview);
+            this.Tab_User.Controls.Add(this.vispShoot);
+            this.Tab_User.Controls.Add(this.btnPic);
+            this.Tab_User.Controls.Add(this.btnCut);
+            this.Tab_User.Controls.Add(this.btnConnect);
+            this.Tab_User.Controls.Add(this.label8);
+            this.Tab_User.Controls.Add(this.cboResolution);
+            this.Tab_User.Controls.Add(this.label7);
+            this.Tab_User.Controls.Add(this.cboVideo);
             this.Tab_User.Controls.Add(this.uploadFiles_btn);
             this.Tab_User.Controls.Add(this.folderBrowser_btn);
             this.Tab_User.Controls.Add(this.ImageFolderAddress_tb);
@@ -109,8 +200,6 @@ namespace FaceCheckIn_App
             this.Tab_User.Controls.Add(this.label1);
             this.Tab_User.Controls.Add(this.Cancel_btn);
             this.Tab_User.Controls.Add(this.signIn_btn);
-            this.Tab_User.Controls.Add(this.ScratchPicture_btn);
-            this.Tab_User.Controls.Add(this.activeCamara_btn);
             this.Tab_User.Controls.Add(this.loadImage_btn);
             this.Tab_User.Controls.Add(this.userId_tb);
             this.Tab_User.Controls.Add(this.UserIdLabel);
@@ -123,25 +212,112 @@ namespace FaceCheckIn_App
             this.Tab_User.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Tab_User.Name = "Tab_User";
             this.Tab_User.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.Tab_User.Size = new System.Drawing.Size(1468, 983);
+            this.Tab_User.Size = new System.Drawing.Size(1236, 983);
             this.Tab_User.TabIndex = 0;
             this.Tab_User.Text = "用户注册";
             this.Tab_User.UseVisualStyleBackColor = true;
             // 
-            // videoSourcePlayer_UserSignIn
+            // picbPreview
             // 
-            this.videoSourcePlayer_UserSignIn.Location = new System.Drawing.Point(983, 358);
-            this.videoSourcePlayer_UserSignIn.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.videoSourcePlayer_UserSignIn.Name = "videoSourcePlayer_UserSignIn";
-            this.videoSourcePlayer_UserSignIn.Size = new System.Drawing.Size(382, 377);
-            this.videoSourcePlayer_UserSignIn.TabIndex = 38;
-            this.videoSourcePlayer_UserSignIn.TabStop = false;
-            this.videoSourcePlayer_UserSignIn.Text = "videoSourcePlayer_UserSignIn";
-            this.videoSourcePlayer_UserSignIn.VideoSource = null;
+            this.picbPreview.Image = null;
+            this.picbPreview.Location = new System.Drawing.Point(1180, 380);
+            this.picbPreview.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.picbPreview.Name = "picbPreview";
+            this.picbPreview.Size = new System.Drawing.Size(56, 476);
+            this.picbPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picbPreview.TabIndex = 47;
+            this.picbPreview.TabStop = false;
+            // 
+            // vispShoot
+            // 
+            this.vispShoot.Location = new System.Drawing.Point(722, 380);
+            this.vispShoot.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.vispShoot.Name = "vispShoot";
+            this.vispShoot.Size = new System.Drawing.Size(458, 476);
+            this.vispShoot.TabIndex = 46;
+            this.vispShoot.Text = "videoSourcePlayer1";
+            this.vispShoot.VideoSource = null;
+            // 
+            // btnPic
+            // 
+            this.btnPic.Location = new System.Drawing.Point(1040, 308);
+            this.btnPic.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnPic.Name = "btnPic";
+            this.btnPic.Size = new System.Drawing.Size(104, 44);
+            this.btnPic.TabIndex = 45;
+            this.btnPic.Text = "拍照";
+            this.btnPic.UseVisualStyleBackColor = true;
+            this.btnPic.Click += new System.EventHandler(this.btnPic_Click);
+            // 
+            // btnCut
+            // 
+            this.btnCut.Location = new System.Drawing.Point(900, 308);
+            this.btnCut.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnCut.Name = "btnCut";
+            this.btnCut.Size = new System.Drawing.Size(102, 44);
+            this.btnCut.TabIndex = 44;
+            this.btnCut.Text = "断开";
+            this.btnCut.UseVisualStyleBackColor = true;
+            this.btnCut.Click += new System.EventHandler(this.btnCut_Click);
+            // 
+            // btnConnect
+            // 
+            this.btnConnect.Location = new System.Drawing.Point(750, 308);
+            this.btnConnect.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnConnect.Name = "btnConnect";
+            this.btnConnect.Size = new System.Drawing.Size(100, 44);
+            this.btnConnect.TabIndex = 43;
+            this.btnConnect.Text = "连接";
+            this.btnConnect.UseVisualStyleBackColor = true;
+            this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label8.Location = new System.Drawing.Point(768, 246);
+            this.label8.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(82, 24);
+            this.label8.TabIndex = 42;
+            this.label8.Text = "像素：";
+            // 
+            // cboResolution
+            // 
+            this.cboResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboResolution.FormattingEnabled = true;
+            this.cboResolution.Location = new System.Drawing.Point(878, 238);
+            this.cboResolution.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.cboResolution.Name = "cboResolution";
+            this.cboResolution.Size = new System.Drawing.Size(262, 32);
+            this.cboResolution.TabIndex = 41;
+            this.cboResolution.SelectedIndexChanged += new System.EventHandler(this.cboResolution_SelectedIndexChanged);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label7.Location = new System.Drawing.Point(768, 182);
+            this.label7.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(106, 24);
+            this.label7.TabIndex = 40;
+            this.label7.Text = "摄像头：";
+            // 
+            // cboVideo
+            // 
+            this.cboVideo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboVideo.FormattingEnabled = true;
+            this.cboVideo.Location = new System.Drawing.Point(878, 172);
+            this.cboVideo.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.cboVideo.Name = "cboVideo";
+            this.cboVideo.Size = new System.Drawing.Size(262, 32);
+            this.cboVideo.TabIndex = 39;
+            this.cboVideo.SelectedIndexChanged += new System.EventHandler(this.cboVideo_SelectedIndexChanged);
             // 
             // uploadFiles_btn
             // 
-            this.uploadFiles_btn.Location = new System.Drawing.Point(884, 252);
+            this.uploadFiles_btn.Location = new System.Drawing.Point(570, 246);
             this.uploadFiles_btn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.uploadFiles_btn.Name = "uploadFiles_btn";
             this.uploadFiles_btn.Size = new System.Drawing.Size(82, 40);
@@ -152,10 +328,10 @@ namespace FaceCheckIn_App
             // 
             // folderBrowser_btn
             // 
-            this.folderBrowser_btn.Location = new System.Drawing.Point(762, 254);
+            this.folderBrowser_btn.Location = new System.Drawing.Point(474, 246);
             this.folderBrowser_btn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.folderBrowser_btn.Name = "folderBrowser_btn";
-            this.folderBrowser_btn.Size = new System.Drawing.Size(92, 38);
+            this.folderBrowser_btn.Size = new System.Drawing.Size(92, 40);
             this.folderBrowser_btn.TabIndex = 36;
             this.folderBrowser_btn.Text = "浏览";
             this.folderBrowser_btn.UseVisualStyleBackColor = true;
@@ -163,28 +339,28 @@ namespace FaceCheckIn_App
             // 
             // ImageFolderAddress_tb
             // 
-            this.ImageFolderAddress_tb.Location = new System.Drawing.Point(266, 254);
+            this.ImageFolderAddress_tb.Location = new System.Drawing.Point(210, 248);
             this.ImageFolderAddress_tb.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ImageFolderAddress_tb.Name = "ImageFolderAddress_tb";
-            this.ImageFolderAddress_tb.Size = new System.Drawing.Size(492, 35);
+            this.ImageFolderAddress_tb.Size = new System.Drawing.Size(252, 35);
             this.ImageFolderAddress_tb.TabIndex = 35;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(118, 257);
+            this.label4.Location = new System.Drawing.Point(72, 254);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(154, 24);
+            this.label4.Size = new System.Drawing.Size(130, 24);
             this.label4.TabIndex = 34;
-            this.label4.Text = "文件夹路径：";
+            this.label4.Text = "文件路径：";
             // 
             // RemoveBtn
             // 
-            this.RemoveBtn.Location = new System.Drawing.Point(282, 306);
+            this.RemoveBtn.Location = new System.Drawing.Point(248, 308);
             this.RemoveBtn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.RemoveBtn.Name = "RemoveBtn";
-            this.RemoveBtn.Size = new System.Drawing.Size(128, 46);
+            this.RemoveBtn.Size = new System.Drawing.Size(128, 44);
             this.RemoveBtn.TabIndex = 33;
             this.RemoveBtn.Text = "删除选中";
             this.RemoveBtn.UseVisualStyleBackColor = true;
@@ -193,11 +369,11 @@ namespace FaceCheckIn_App
             // FacelistView
             // 
             this.FacelistView.LargeImageList = this.imageLists;
-            this.FacelistView.Location = new System.Drawing.Point(116, 358);
+            this.FacelistView.Location = new System.Drawing.Point(76, 380);
             this.FacelistView.Margin = new System.Windows.Forms.Padding(0);
             this.FacelistView.Name = "FacelistView";
             this.FacelistView.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.FacelistView.Size = new System.Drawing.Size(851, 492);
+            this.FacelistView.Size = new System.Drawing.Size(572, 472);
             this.FacelistView.TabIndex = 32;
             this.FacelistView.UseCompatibleStateImageBehavior = false;
             // 
@@ -212,7 +388,7 @@ namespace FaceCheckIn_App
             // 
             this.label3.AutoSize = true;
             this.label3.ForeColor = System.Drawing.Color.Red;
-            this.label3.Location = new System.Drawing.Point(616, 188);
+            this.label3.Location = new System.Drawing.Point(470, 188);
             this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(22, 24);
@@ -223,7 +399,7 @@ namespace FaceCheckIn_App
             // 
             this.label2.AutoSize = true;
             this.label2.ForeColor = System.Drawing.Color.Red;
-            this.label2.Location = new System.Drawing.Point(612, 114);
+            this.label2.Location = new System.Drawing.Point(470, 114);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(22, 24);
@@ -234,7 +410,7 @@ namespace FaceCheckIn_App
             // 
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.Color.Red;
-            this.label1.Location = new System.Drawing.Point(612, 44);
+            this.label1.Location = new System.Drawing.Point(470, 44);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(22, 24);
@@ -243,7 +419,7 @@ namespace FaceCheckIn_App
             // 
             // Cancel_btn
             // 
-            this.Cancel_btn.Location = new System.Drawing.Point(426, 306);
+            this.Cancel_btn.Location = new System.Drawing.Point(412, 308);
             this.Cancel_btn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Cancel_btn.Name = "Cancel_btn";
             this.Cancel_btn.Size = new System.Drawing.Size(132, 46);
@@ -254,7 +430,7 @@ namespace FaceCheckIn_App
             // 
             // signIn_btn
             // 
-            this.signIn_btn.Location = new System.Drawing.Point(116, 869);
+            this.signIn_btn.Location = new System.Drawing.Point(76, 880);
             this.signIn_btn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.signIn_btn.Name = "signIn_btn";
             this.signIn_btn.Size = new System.Drawing.Size(132, 42);
@@ -263,34 +439,12 @@ namespace FaceCheckIn_App
             this.signIn_btn.UseVisualStyleBackColor = true;
             this.signIn_btn.Click += new System.EventHandler(this.signIn_btn_Click);
             // 
-            // ScratchPicture_btn
-            // 
-            this.ScratchPicture_btn.Location = new System.Drawing.Point(1234, 306);
-            this.ScratchPicture_btn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.ScratchPicture_btn.Name = "ScratchPicture_btn";
-            this.ScratchPicture_btn.Size = new System.Drawing.Size(132, 48);
-            this.ScratchPicture_btn.TabIndex = 26;
-            this.ScratchPicture_btn.Text = "抓取照片";
-            this.ScratchPicture_btn.UseVisualStyleBackColor = true;
-            this.ScratchPicture_btn.Click += new System.EventHandler(this.CatchPicture_btn_Click);
-            // 
-            // activeCamara_btn
-            // 
-            this.activeCamara_btn.Location = new System.Drawing.Point(983, 306);
-            this.activeCamara_btn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.activeCamara_btn.Name = "activeCamara_btn";
-            this.activeCamara_btn.Size = new System.Drawing.Size(152, 48);
-            this.activeCamara_btn.TabIndex = 26;
-            this.activeCamara_btn.Text = "打开摄像头";
-            this.activeCamara_btn.UseVisualStyleBackColor = true;
-            this.activeCamara_btn.Click += new System.EventHandler(this.activeCamara_btn_Click);
-            // 
             // loadImage_btn
             // 
-            this.loadImage_btn.Location = new System.Drawing.Point(116, 306);
+            this.loadImage_btn.Location = new System.Drawing.Point(76, 308);
             this.loadImage_btn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.loadImage_btn.Name = "loadImage_btn";
-            this.loadImage_btn.Size = new System.Drawing.Size(132, 48);
+            this.loadImage_btn.Size = new System.Drawing.Size(132, 46);
             this.loadImage_btn.TabIndex = 25;
             this.loadImage_btn.Text = "添加图片";
             this.loadImage_btn.UseVisualStyleBackColor = true;
@@ -298,16 +452,16 @@ namespace FaceCheckIn_App
             // 
             // userId_tb
             // 
-            this.userId_tb.Location = new System.Drawing.Point(262, 114);
+            this.userId_tb.Location = new System.Drawing.Point(210, 108);
             this.userId_tb.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.userId_tb.Name = "userId_tb";
-            this.userId_tb.Size = new System.Drawing.Size(344, 35);
+            this.userId_tb.Size = new System.Drawing.Size(252, 35);
             this.userId_tb.TabIndex = 24;
             // 
             // UserIdLabel
             // 
             this.UserIdLabel.AutoSize = true;
-            this.UserIdLabel.Location = new System.Drawing.Point(120, 114);
+            this.UserIdLabel.Location = new System.Drawing.Point(72, 114);
             this.UserIdLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.UserIdLabel.Name = "UserIdLabel";
             this.UserIdLabel.Size = new System.Drawing.Size(106, 24);
@@ -316,7 +470,7 @@ namespace FaceCheckIn_App
             // 
             // pboxImage
             // 
-            this.pboxImage.Location = new System.Drawing.Point(124, 360);
+            this.pboxImage.Location = new System.Drawing.Point(124, 416);
             this.pboxImage.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pboxImage.Name = "pboxImage";
             this.pboxImage.Size = new System.Drawing.Size(342, 164);
@@ -326,16 +480,17 @@ namespace FaceCheckIn_App
             // 
             // groupId_tb
             // 
-            this.groupId_tb.Location = new System.Drawing.Point(262, 40);
+            this.groupId_tb.Location = new System.Drawing.Point(210, 38);
             this.groupId_tb.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.groupId_tb.Name = "groupId_tb";
-            this.groupId_tb.Size = new System.Drawing.Size(344, 35);
+            this.groupId_tb.Size = new System.Drawing.Size(252, 35);
             this.groupId_tb.TabIndex = 21;
+            this.groupId_tb.TextChanged += new System.EventHandler(this.groupId_tb_TextChanged);
             // 
             // groupIdLabel
             // 
             this.groupIdLabel.AutoSize = true;
-            this.groupIdLabel.Location = new System.Drawing.Point(120, 44);
+            this.groupIdLabel.Location = new System.Drawing.Point(72, 44);
             this.groupIdLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.groupIdLabel.Name = "groupIdLabel";
             this.groupIdLabel.Size = new System.Drawing.Size(118, 24);
@@ -344,16 +499,16 @@ namespace FaceCheckIn_App
             // 
             // UserName_tb
             // 
-            this.UserName_tb.Location = new System.Drawing.Point(266, 188);
+            this.UserName_tb.Location = new System.Drawing.Point(210, 182);
             this.UserName_tb.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.UserName_tb.Name = "UserName_tb";
-            this.UserName_tb.Size = new System.Drawing.Size(344, 35);
+            this.UserName_tb.Size = new System.Drawing.Size(252, 35);
             this.UserName_tb.TabIndex = 19;
             // 
             // UserNameLabel
             // 
             this.UserNameLabel.AutoSize = true;
-            this.UserNameLabel.Location = new System.Drawing.Point(118, 188);
+            this.UserNameLabel.Location = new System.Drawing.Point(72, 188);
             this.UserNameLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.UserNameLabel.Name = "UserNameLabel";
             this.UserNameLabel.Size = new System.Drawing.Size(106, 24);
@@ -362,23 +517,24 @@ namespace FaceCheckIn_App
             // 
             // Tab_SignIn
             // 
+            this.Tab_SignIn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Tab_SignIn.BackgroundImage")));
             this.Tab_SignIn.Controls.Add(this.delete_btn);
             this.Tab_SignIn.Controls.Add(this.users_dataGridView);
             this.Tab_SignIn.Location = new System.Drawing.Point(8, 39);
             this.Tab_SignIn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Tab_SignIn.Name = "Tab_SignIn";
             this.Tab_SignIn.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.Tab_SignIn.Size = new System.Drawing.Size(1468, 983);
+            this.Tab_SignIn.Size = new System.Drawing.Size(1236, 983);
             this.Tab_SignIn.TabIndex = 1;
             this.Tab_SignIn.Text = "人脸库管理";
             this.Tab_SignIn.UseVisualStyleBackColor = true;
             // 
             // delete_btn
             // 
-            this.delete_btn.Location = new System.Drawing.Point(14, 39);
+            this.delete_btn.Location = new System.Drawing.Point(4, 24);
             this.delete_btn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.delete_btn.Name = "delete_btn";
-            this.delete_btn.Size = new System.Drawing.Size(124, 43);
+            this.delete_btn.Size = new System.Drawing.Size(148, 68);
             this.delete_btn.TabIndex = 1;
             this.delete_btn.Text = "删除";
             this.delete_btn.UseVisualStyleBackColor = true;
@@ -387,111 +543,57 @@ namespace FaceCheckIn_App
             // users_dataGridView
             // 
             this.users_dataGridView.AutoGenerateColumns = false;
+            this.users_dataGridView.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
             this.users_dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.users_dataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.groupidDataGridViewTextBoxColumn,
             this.useridDataGridViewTextBoxColumn,
             this.userinfoDataGridViewTextBoxColumn});
             this.users_dataGridView.DataSource = this.faceSearchBindingSource;
-            this.users_dataGridView.Location = new System.Drawing.Point(4, 83);
+            this.users_dataGridView.Location = new System.Drawing.Point(2, 114);
             this.users_dataGridView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.users_dataGridView.MultiSelect = false;
             this.users_dataGridView.Name = "users_dataGridView";
             this.users_dataGridView.RowTemplate.Height = 40;
-            this.users_dataGridView.Size = new System.Drawing.Size(1310, 856);
+            this.users_dataGridView.Size = new System.Drawing.Size(746, 872);
             this.users_dataGridView.TabIndex = 0;
+            // 
+            // ofdOpenImageFile
+            // 
+            this.ofdOpenImageFile.FileName = "ofdOpenImageFile";
+            // 
+            // faceSearchBindingSource
+            // 
+            this.faceSearchBindingSource.DataSource = typeof(FaceCheckIn_App.FaceSearch);
             // 
             // groupidDataGridViewTextBoxColumn
             // 
             this.groupidDataGridViewTextBoxColumn.DataPropertyName = "group_id";
             this.groupidDataGridViewTextBoxColumn.HeaderText = "用户组Id";
             this.groupidDataGridViewTextBoxColumn.Name = "groupidDataGridViewTextBoxColumn";
+            this.groupidDataGridViewTextBoxColumn.Width = 112;
             // 
             // useridDataGridViewTextBoxColumn
             // 
             this.useridDataGridViewTextBoxColumn.DataPropertyName = "user_id";
             this.useridDataGridViewTextBoxColumn.HeaderText = "用户Id";
             this.useridDataGridViewTextBoxColumn.Name = "useridDataGridViewTextBoxColumn";
+            this.useridDataGridViewTextBoxColumn.Width = 112;
             // 
             // userinfoDataGridViewTextBoxColumn
             // 
             this.userinfoDataGridViewTextBoxColumn.DataPropertyName = "user_info";
             this.userinfoDataGridViewTextBoxColumn.HeaderText = "用户名称";
             this.userinfoDataGridViewTextBoxColumn.Name = "userinfoDataGridViewTextBoxColumn";
-            // 
-            // faceSearchBindingSource
-            // 
-            this.faceSearchBindingSource.DataSource = typeof(FaceCheckIn_App.FaceSearch);
-            // 
-            // Tab_CheckIn
-            // 
-            this.Tab_CheckIn.Controls.Add(this.label5);
-            this.Tab_CheckIn.Controls.Add(this.CheckResult_rtb);
-            this.Tab_CheckIn.Controls.Add(this.ConfirmCheckIn_btn);
-            this.Tab_CheckIn.Controls.Add(this.videoSourcePlayer_UserCheckIn);
-            this.Tab_CheckIn.Location = new System.Drawing.Point(8, 39);
-            this.Tab_CheckIn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.Tab_CheckIn.Name = "Tab_CheckIn";
-            this.Tab_CheckIn.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.Tab_CheckIn.Size = new System.Drawing.Size(1468, 983);
-            this.Tab_CheckIn.TabIndex = 2;
-            this.Tab_CheckIn.Text = "用户签到";
-            this.Tab_CheckIn.UseVisualStyleBackColor = true;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.1F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(933, 8);
-            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(210, 44);
-            this.label5.TabIndex = 3;
-            this.label5.Text = "签到信息：";
-            // 
-            // CheckResult_rtb
-            // 
-            this.CheckResult_rtb.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.CheckResult_rtb.Location = new System.Drawing.Point(940, 61);
-            this.CheckResult_rtb.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.CheckResult_rtb.Name = "CheckResult_rtb";
-            this.CheckResult_rtb.ReadOnly = true;
-            this.CheckResult_rtb.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.CheckResult_rtb.Size = new System.Drawing.Size(440, 790);
-            this.CheckResult_rtb.TabIndex = 2;
-            this.CheckResult_rtb.Text = "";
-            // 
-            // ConfirmCheckIn_btn
-            // 
-            this.ConfirmCheckIn_btn.Location = new System.Drawing.Point(290, 862);
-            this.ConfirmCheckIn_btn.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.ConfirmCheckIn_btn.Name = "ConfirmCheckIn_btn";
-            this.ConfirmCheckIn_btn.Size = new System.Drawing.Size(150, 46);
-            this.ConfirmCheckIn_btn.TabIndex = 1;
-            this.ConfirmCheckIn_btn.Text = "确认签到";
-            this.ConfirmCheckIn_btn.UseVisualStyleBackColor = true;
-            this.ConfirmCheckIn_btn.Click += new System.EventHandler(this.ConfirmCheckIn_btn_Click);
-            // 
-            // videoSourcePlayer_UserCheckIn
-            // 
-            this.videoSourcePlayer_UserCheckIn.Location = new System.Drawing.Point(16, 8);
-            this.videoSourcePlayer_UserCheckIn.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.videoSourcePlayer_UserCheckIn.Name = "videoSourcePlayer_UserCheckIn";
-            this.videoSourcePlayer_UserCheckIn.Size = new System.Drawing.Size(878, 842);
-            this.videoSourcePlayer_UserCheckIn.TabIndex = 0;
-            this.videoSourcePlayer_UserCheckIn.Text = "videoSourcePlayer_UserCheckIn";
-            this.videoSourcePlayer_UserCheckIn.VideoSource = null;
-            // 
-            // ofdOpenImageFile
-            // 
-            this.ofdOpenImageFile.FileName = "ofdOpenImageFile";
+            this.userinfoDataGridViewTextBoxColumn.Width = 112;
             // 
             // HomeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1528, 1133);
+            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.ClientSize = new System.Drawing.Size(1262, 1060);
             this.Controls.Add(this.UserFace_Page);
             this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "HomeForm";
@@ -499,14 +601,15 @@ namespace FaceCheckIn_App
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.HomeForm_FormClosed);
             this.Load += new System.EventHandler(this.HomeForm_Load);
             this.UserFace_Page.ResumeLayout(false);
+            this.Tab_CheckIn.ResumeLayout(false);
+            this.Tab_CheckIn.PerformLayout();
             this.Tab_User.ResumeLayout(false);
             this.Tab_User.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picbPreview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pboxImage)).EndInit();
             this.Tab_SignIn.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.users_dataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.faceSearchBindingSource)).EndInit();
-            this.Tab_CheckIn.ResumeLayout(false);
-            this.Tab_CheckIn.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -528,7 +631,6 @@ namespace FaceCheckIn_App
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button Cancel_btn;
         private System.Windows.Forms.Button signIn_btn;
-        private System.Windows.Forms.Button activeCamara_btn;
         private System.Windows.Forms.Button loadImage_btn;
         private System.Windows.Forms.TextBox userId_tb;
         private System.Windows.Forms.Label UserIdLabel;
@@ -542,16 +644,24 @@ namespace FaceCheckIn_App
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.Button ConfirmCheckIn_btn;
         private AForge.Controls.VideoSourcePlayer videoSourcePlayer_UserCheckIn;
-        private AForge.Controls.VideoSourcePlayer videoSourcePlayer_UserSignIn;
-        private System.Windows.Forms.Button ScratchPicture_btn;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.RichTextBox CheckResult_rtb;
         private System.Windows.Forms.DataGridView users_dataGridView;
         private System.Windows.Forms.BindingSource faceSearchBindingSource;
         private System.Windows.Forms.Button delete_btn;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button btnPic;
+        private System.Windows.Forms.Button btnCut;
+        private System.Windows.Forms.Button btnConnect;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.ComboBox cboResolution;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ComboBox cboVideo;
+        private AForge.Controls.VideoSourcePlayer vispShoot;
+        private AForge.Controls.PictureBox picbPreview;
         private System.Windows.Forms.DataGridViewTextBoxColumn groupidDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn useridDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn userinfoDataGridViewTextBoxColumn;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }

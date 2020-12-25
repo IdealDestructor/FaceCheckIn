@@ -18,9 +18,9 @@ namespace FaceCheckIn_App
     public class FaceDectectHelper
     {
         // 设置APPID/AK/SK
-        private const string APP_ID = "23185012";
-        private const string API_KEY = "rmtmsbqduc4yj8SPnB7IEEHr";
-        private const string SECRET_KEY = "to7BUgSuV9lTrAeScjfuZZ32xqMGhLC1";
+        private const string APP_ID = "22908578";
+        private const string API_KEY = "QFGKFa5pLbrcDyXD1zcXhjRp";
+        private const string SECRET_KEY = "uZ2uvCEKv5wceHyrjYO9wXVAVsqiVc4Z";
 
         private static Face _faceClient = new Face(API_KEY, SECRET_KEY) { Timeout = 6000 };
 
