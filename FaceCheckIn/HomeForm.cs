@@ -226,11 +226,11 @@ namespace FaceCheckIn
                 CheckResult_rtb.AppendText(String.Format("{0}\t 签到时间：{1}\n", result.user_info, time));
                 //签到信息入库
                 MysqlUtil.addInfor(result.user_info, time);
-                SpeechHelper.Tts(String.Format("签到成功，欢迎{0}", result.user_info), option);
+                SpeechHelper.speech(String.Format("签到成功，欢迎{0}", result.user_info), option);
             }
             else
             {
-                SpeechHelper.Tts(String.Format("没有该用户的信息，请先注册该用户"), option);
+                SpeechHelper.speech(String.Format("没有该用户的信息，请先注册"), option);
             }
 
             return flag;

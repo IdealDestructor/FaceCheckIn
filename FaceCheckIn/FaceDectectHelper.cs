@@ -271,7 +271,7 @@ namespace FaceCheckIn
 
                 if (jresult["error_code"].ToString() != "0" && !String.IsNullOrEmpty(jresult["error_msg"].ToString()))
                 {
-                    SpeechHelper.Tts(jresult["error_msg"].ToString(), null);
+                    SpeechHelper.speech(jresult["error_msg"].ToString(), null);
                     return null;
                 }
 

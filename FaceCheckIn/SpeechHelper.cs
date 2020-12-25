@@ -15,11 +15,11 @@ namespace FaceCheckIn
         static extern long mciSendString(string strCommand, StringBuilder strReturn, int iReturnLength, IntPtr hwndCallback);
 
         // 设置APPID/AK/SK
-        private const string APP_ID = "14489880";
-        private const string API_KEY = "8Sr9u9XYkRPcA62wL02aC43V";
-        private const string SECRET_KEY = "i0QtdyawLje2mZEV9kWU5dbQqw8Y76ob";
+        private const string APP_ID = "22836668";
+        private const string API_KEY = "jMrmRPSWcz4jLfQKMwmQz3Rg";
+        private const string SECRET_KEY = "GmgqvXo1IndRHXTSDh15R0pvAE8GohBO";
 
-        private static Tts _ttsClient = new Tts(API_KEY, SECRET_KEY) { Timeout = 6000 };
+        private static Tts speechClient = new Tts(API_KEY, SECRET_KEY) { Timeout = 6000 };
 
         /// <summary>
         /// 语音合成
@@ -27,7 +27,7 @@ namespace FaceCheckIn
         /// <param name="content"></param>
         /// <param name="option"></param>
         /// <returns></returns>
-        public static bool Tts(string content, Dictionary<string, object> option)
+        public static bool speech(string content, Dictionary<string, object> option)
         {
             try
             {
@@ -42,12 +42,12 @@ namespace FaceCheckIn
                     };
                 }
 
-                var result = _ttsClient.Synthesis(content, option);
+                var result = speechClient.Synthesis(content, option);
 
                 if (result.ErrorCode == 0)
                 {
                     File.WriteAllBytes("temp.mp3", result.Data);
-                    PlaySpeech("temp.mp3");
+                    Play("temp.mp3");
                 }
                 return result.Success;
             }
@@ -57,7 +57,7 @@ namespace FaceCheckIn
             }
         }
 
-        private static void PlaySpeech(string path)
+        private static void Play(string path)
         {
             // 播放音频文件
             mciSendString("open temp.mp3 alias temp_alias", null, 0, IntPtr.Zero);
