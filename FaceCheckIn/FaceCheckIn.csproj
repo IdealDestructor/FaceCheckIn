@@ -81,8 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaiduUtils.cs" />
-    <Compile Include="CommonUtility.cs" />
-    <Compile Include="FaceDectect.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="HomeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -92,7 +91,7 @@
     <Compile Include="MysqlUtil.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Speak.cs" />
+    <Compile Include="SpeakHello.cs" />
     <EmbeddedResource Include="HomeForm.resx">
       <DependentUpon>HomeForm.cs</DependentUpon>
     </EmbeddedResource>

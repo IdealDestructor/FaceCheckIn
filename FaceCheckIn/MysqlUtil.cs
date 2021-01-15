@@ -47,6 +47,7 @@ namespace FaceCheckIn
             MySqlCommand cmd = new MySqlCommand(sql, conn);
             MySqlDataReader reader = cmd.ExecuteReader();
             List<List<string>> list = new List<List<string>>();
+            int i = 0;
             while (reader.Read())
             {
                 List<string> field = new List<string>();

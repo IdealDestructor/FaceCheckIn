@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Baidu.Aip;
 using Baidu.Aip.Face;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Windows.Forms;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace FaceCheckIn
 {
@@ -181,6 +185,7 @@ namespace FaceCheckIn
 
                 foreach (var userId in userIdList)
                 {
+                    Thread.Sleep(1000);
                     UserInfo userInfo = queryOneUser(userId, groupId);
                     userinfolist.Add(userInfo);
                 }
@@ -205,7 +210,7 @@ namespace FaceCheckIn
             if (userResult["error_msg"].ToString() == "SUCCESS")
             {
                 UserInfo userInfo = new UserInfo();
-                userInfo.user_id = userResult["result"]["user_list"][0]["user_info"].ToString();
+                userInfo.user_id = userId;
                 userInfo.user_info = userResult["result"]["user_list"][0]["user_info"].ToString();
                 userInfo.group_id = groupId;
 
@@ -216,14 +221,12 @@ namespace FaceCheckIn
             {
                 return null;
             }
-
-
         }
 
         //4、人脸搜索---返回人员的id+人员的姓名
-        public static FaceSearchResult searchOneUserByImage(String image)
+        public static String searchOneUserByImage(String image)
         {
-            FaceSearchResult faceSearchResult = new FaceSearchResult();
+
             var options = new Dictionary<string, object>{
                     {"quality_control", "NORMAL"},
                     {"liveness_control", "LOW"},
@@ -243,26 +246,47 @@ namespace FaceCheckIn
 
                 Console.WriteLine("人脸搜索结果:");
                 Console.WriteLine(searchResult);
-                faceSearchResult.flag = true;
-                faceSearchResult.msg = userName;
-                
+
+                return userId.ToString() +"#"+ userName;
 
             }
             else
             {
-                faceSearchResult.flag = false;
-                faceSearchResult.msg = searchResult["error_msg"].ToString();
+                return searchResult["error_msg"].ToString();
             }
 
-            return faceSearchResult;
+        }
 
+        // 人脸检测服务
+        public static String faceDetectJudge(string image)
+        {
+            String result = String.Empty;
+            try
+            {
+                var imageType = "BASE64";
+                var options = new Dictionary<string, object>
+                {
+                    {"face_field",  "beauty,age,expression,face_shape,gender,race,quality"},
+                    {"max_face_num", 1},
+                };
+
+                var jresult = aipClient.Detect(image, imageType, options);
+
+                if (jresult["error_code"].ToString() != "0" && !String.IsNullOrEmpty(jresult["error_msg"].ToString()))
+                    return jresult["error_msg"].ToString();
+
+            }
+            catch (Exception exp)
+            {
+                MessageBox.Show(exp.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            return result;
         }
 
         //人脸识别-返回是人脸的概率
         public static String faceDetect(String image)
         {
             var imageType = "BASE64";
-            //var result = _faceClient.Detect(image, imageType);
             // 如果有可选参数
             var options = new Dictionary<string, object>
                 {
@@ -277,7 +301,7 @@ namespace FaceCheckIn
 
             FaceDectecResult faceResult = JsonConvert.DeserializeObject<FaceDectecResult>(result["result"].ToString());
             Console.WriteLine("人脸识别结果:");
-            Console.WriteLine(result);
+            Console.WriteLine(faceResult);
 
             if (faceResult.face_list[0].face_probability > 0.8)
             {
@@ -291,21 +315,22 @@ namespace FaceCheckIn
         }
     }
 
+    //用户信息，百度ai返回的json对象
     public class UserInfo
     {
         public UserInfo() { }
-        public UserInfo(UserInfo info)
+        public UserInfo(UserInfo face)
         {
-            group_id = info.group_id;
-            user_id = info.user_id;
-            user_info = info.user_info;
+            group_id = face.group_id;
+            user_id = face.user_id;
+            user_info = face.user_info;
         }
-        
         public string group_id { get; set; }
         public string user_id { get; set; }
         public string user_info { get; set; }
     }
 
+    //人脸信息，百度ai返回的json对象
     public class FaceInfo
     {
         public FaceShape face_shape { get; set; }
@@ -315,7 +340,8 @@ namespace FaceCheckIn
         public Expression expression { get; set; }
         public Race race { get; set; }
         public String beauty { get; set; }
-        public double face_probability { get; set; }
+        public float face_probability { get; set; }
+
     }
 
     public class FaceShape
@@ -354,10 +380,4 @@ namespace FaceCheckIn
         public List<FaceInfo> face_list { get; set; }
     }
 
-
-    public class FaceSearchResult{
-        public Boolean flag { get; set; }
-        public String msg { get; set; }
-    }
-    
 }

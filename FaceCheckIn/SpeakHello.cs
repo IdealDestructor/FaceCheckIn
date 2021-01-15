@@ -9,7 +9,7 @@ using System.Text;
 
 namespace FaceCheckIn
 {
-    public class Speak
+    public class SpeakHello
     {
         [DllImport("winmm.dll", SetLastError = true)]
         static extern long mciSendString(string strCommand, StringBuilder strReturn, int iReturnLength, IntPtr hwndCallback);

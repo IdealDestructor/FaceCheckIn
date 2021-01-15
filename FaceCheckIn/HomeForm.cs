@@ -8,8 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 using MySql.Data.MySqlClient;
 
 namespace FaceCheckIn
@@ -31,13 +30,13 @@ namespace FaceCheckIn
         private VideoCaptureDevice videoSource;
         public int selectedDeviceIndex = 0;
 
-        
 
         public HomeForm()
         {
             InitializeComponent();
             Control.CheckForIllegalCrossThreadCalls = false;
 
+            //1、获取摄像头，并打开
             videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
 
             if (videoDevices.Count == 0)
@@ -57,6 +56,7 @@ namespace FaceCheckIn
                 Userinfolist = new List<UserInfo>();
             }
 
+            //2、展示当前识别用户的历史刷脸情况
             users_dataGridView.DataSource = Userinfolist;
             List<List<string>> infor = MysqlUtil.listInfor();
             foreach (List<string> l in infor)
@@ -76,10 +76,11 @@ namespace FaceCheckIn
             }
         }
 
-        //创建一个委托，是为访问DataGridView控件服务的。
         public delegate void UserCheckInDelegate();
-        //定义一个委托变量
+
         public UserCheckInDelegate UserCheck;
+        
+        //3、刷脸签到
         public void UserCheckInMethod()
         {
             Bitmap bitmap = videoSourcePlayer_UserCheckIn.GetCurrentVideoFrame();
@@ -102,6 +103,8 @@ namespace FaceCheckIn
         {
             this.BeginInvoke(UserCheck);
         }
+        
+        //上传图片
         private void loadImage_btn_Click(object sender, EventArgs e)
         {
             ofdOpenImageFile.Filter = "Image Files (Image)|*.jpg;*.png;*.bmp;*.jpeg;*.gif;";
@@ -122,15 +125,19 @@ namespace FaceCheckIn
 
             UpdateImageListUI();
         }
+
+        //增加人脸
         private string AddFace(string filePath)
         {
             if (FaceList.Contains(filePath))
                 return "该人脸已注册";
 
-            //检测图像质量
+            //处理图片为BASE64
             var imageBytes = File.ReadAllBytes(filePath);
             var image = Convert.ToBase64String(imageBytes);
-            var result = BaiduUtils.faceDetect(image);
+
+            //先进行人脸检测，检测通过后方可注册
+            var result = BaiduUtils.faceDetectJudge(image);
 
             if (String.IsNullOrEmpty(result))
             {
@@ -139,6 +146,8 @@ namespace FaceCheckIn
             }
             return result;
         }
+
+        //批量上传人脸信息的列表
         private void UpdateImageListUI()
         {
             imageLists.Images.Clear();
@@ -158,6 +167,8 @@ namespace FaceCheckIn
             }
 
         }
+
+        //注册按钮点击
         private void signIn_btn_Click(object sender, EventArgs e)
         {
             string groupId = groupId_tb.Text;
@@ -181,16 +192,18 @@ namespace FaceCheckIn
 
             // 如果有可选参数
             var options = new Dictionary<string, object>{
-        {"user_info", userName},
-        {"quality_control", "NORMAL"},
-        {"liveness_control", "NORMAL"}
-        };
+                {"user_info", userName},
+                {"quality_control", "NORMAL"},
+                {"liveness_control", "NORMAL"}
+            };
             var count = imageLists.Images.Count;
             for (int i = 0; i < count; i++)
             {
                 var imageBytes = File.ReadAllBytes(FaceList[i]);
 
                 var image = Convert.ToBase64String(imageBytes);
+
+                //调用封装的人脸注册服务
                 var jresult = BaiduUtils.addUser(image, groupId, userId, userName);
 
                 if (jresult.Equals("SUCCESS"))
@@ -204,11 +217,13 @@ namespace FaceCheckIn
             }
             
         }
+
+        //签到-寻找人脸对应的用户
         private bool UserCheckIn(byte[] imageBytes)
         {
             bool flag = false;
             var image = Convert.ToBase64String(imageBytes);
-            FaceSearchResult result = BaiduUtils.searchOneUserByImage(image);
+            String result = BaiduUtils.searchOneUserByImage(image);
             // 可选参数
             var option = new Dictionary<string, object>()
                 {
@@ -217,18 +232,19 @@ namespace FaceCheckIn
                     {"per", 4}  // 发音人，4：情感度丫丫童声
                 };
 
-            if (result != null && result.flag)
+            if (result != null && result.Contains("#"))
             {
                 flag = true;
                 var time = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-                CheckResult_rtb.AppendText(String.Format("{0}\t 签到时间：{1}\n", result.msg, time));
-                //签到信息入库
-                MysqlUtil.addInfor(result.msg, time);
-                Speak.speech(String.Format("签到成功，欢迎{0}", result.msg), option);
+                CheckResult_rtb.AppendText(String.Format("{0}\t 签到时间：{1}\n", result.Split('#')[1], time));
+                //签到信息入数据库
+                MysqlUtil.addInfor(result.Split('#')[1], time);
+                //欢迎语
+                SpeakHello.speech(String.Format("签到成功，欢迎{0}", result.Split('#')[1]), option);
             }
             else
             {
-                Speak.speech(String.Format("没有该用户的信息，请先注册"), option);
+                SpeakHello.speech(String.Format("没有该用户的信息，请先注册"), option);
             }
 
             return flag;
@@ -241,6 +257,7 @@ namespace FaceCheckIn
             FacelistView.Items.Clear();
         }
 
+        //从图片框中移除人脸
         private void RemoveBtn_Click(object sender, EventArgs e)
         {
             while (FacelistView.SelectedIndices.Count > 0)
@@ -290,6 +307,7 @@ namespace FaceCheckIn
                     }
                 }
             }
+            //更新iamgeList
             UpdateImageListUI();
         }
 
@@ -374,7 +392,6 @@ namespace FaceCheckIn
 
                 var img = Image.FromStream(m);
 
-                //TEST
                 img.Save(fileName);
                 var msg = AddFace(fileName);
 
@@ -390,6 +407,7 @@ namespace FaceCheckIn
 
         }
 
+        //从列表中删除人员
         private void delete_btn_Click(object sender, EventArgs e)
         {
             var flag = false;
@@ -398,12 +416,12 @@ namespace FaceCheckIn
             foreach (DataGridViewRow row in users_dataGridView.SelectedRows)
             {
                 var deleteUser = row.DataBoundItem as UserInfo;
-
                 var jresult = BaiduUtils.delUser(deleteUser.group_id, deleteUser.user_id);
                 if (jresult.Equals("SUCCESS"))
                 {
                     flag = true;
                     list.Remove(deleteUser);
+                    MessageBox.Show("删除成功：" + jresult.ToString());
                 }
                 else {
                     MessageBox.Show("删除失败：" + jresult.ToString());
@@ -416,9 +434,11 @@ namespace FaceCheckIn
             }
         }
 
+        //加载主页
         private void HomeForm_Load(object sender, EventArgs e)
         {
-            videoDevices1 = new FilterInfoCollection(FilterCategory.VideoInputDevice);//得到机器所有接入的摄像设备
+            //得到机器所有接入的摄像设备
+            videoDevices1 = new FilterInfoCollection(FilterCategory.VideoInputDevice);
             if (videoDevices1.Count != 0)
             {
                 foreach (FilterInfo device in videoDevices1)
@@ -430,34 +450,31 @@ namespace FaceCheckIn
             {
                 cboVideo.Items.Add("没有找到摄像头");
             }
-            cboVideo.SelectedIndex = 0;//默认选择第一个
+            cboVideo.SelectedIndex = 0;
 
-            var groupList = BaiduUtils.queryGroupList();
-            var groupIdList = JsonConvert.DeserializeObject<List<string>>(groupList.ToString());
+            //查询人员列表
+            Userinfolist = BaiduUtils.queryUserListByGroupId("1");
 
-            List<UserInfo> userinfolist1 = new List<UserInfo>();
-            foreach (var groupId in groupIdList)
-            {
-                List<UserInfo> list1 = BaiduUtils.queryUserListByGroupId(groupId);
-                userinfolist1.Concat(list1);
-
-            }
-            
-   
+            //启动线程，5分钟刷新一次列表
             Thread objThread = new Thread(new ThreadStart(delegate
             {
                 while (true)
                 {
-                    var result = userinfolist1;
-                    if (result.Count > 0)
-                        Userinfolist = result;
+                    try
+                    {
+                        Thread.Sleep(1000 * 5);
+                        var result = BaiduUtils.queryUserListByGroupId("1");
+                        if (result.Count > 0)
+                            Userinfolist = result;
+                    }
+                    catch (Exception e1) { }
                 }
             }));
 
             objThread.Start();
-
         }
 
+        //摄像头断开连接
         private void DisConnect()
         {
             if (CurrentVideoSourcePlayer!= null)
@@ -471,6 +488,8 @@ namespace FaceCheckIn
                 EnableControlStatus(false);
             }
         }
+
+        //关闭表单时，同时关闭摄像头
         private void HomeForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             DisConnect();
@@ -547,14 +566,13 @@ namespace FaceCheckIn
             btnCut.Enabled = !status;
         }
 
+        //拍照
         private void btnPic_Click(object sender, EventArgs e)
         {
-            //for (int i = 1; ;i++)
             {
                 Bitmap img = vispShoot.GetCurrentVideoFrame();//拍照
                 picbPreview.Image = img;
-                //这里可以根据情况，把照片存到某个路径下
-                //btnPic.
+
                 var tmp_path = "20201224.png";
                 img.Save(tmp_path);
                 var msg = AddFace(tmp_path);
